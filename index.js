@@ -10,13 +10,13 @@ import {insertDataInThemeTable} from './src/sqlite/insertOrUpdateDataInTables';
 export default function Main() {
   useEffect(() => {
     createThemeTable();
-    insertDataInThemeTable(1,'System Default')
+    insertDataInThemeTable(1, 'System Default');
   }, []);
   return (
     <Provider store={store}>
-        <App/>
+      <App />
     </Provider>
-  )
+  );
 }
 
 AppRegistry.registerComponent(appName, () => Main);
