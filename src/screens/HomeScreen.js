@@ -15,6 +15,7 @@ import {
   useTheme,
   Surface,
   IconButton,
+  Icon,
 } from 'react-native-paper';
 import {useDispatch, useSelector} from 'react-redux';
 
@@ -23,6 +24,8 @@ const HomeScreen = ({navigation}) => {
   const theme = useTheme();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const orgData = useSelector(state => state.org.org);
+  const userApps = useSelector(state => state.apps.apps);
+  console.log('user apps===>', userApps);
 
   const openMenu = () => setShowProfileMenu(true);
   const closeMenu = () => setShowProfileMenu(false);
@@ -114,26 +117,51 @@ const HomeScreen = ({navigation}) => {
           margin: 25,
           flexWrap: 'wrap',
         }}>
-        <TouchableOpacity
-          activeOpacity={0.95}
-          onPress={() => navigation.navigate('Forms')}>
-          <Surface
-            elevation={2}
-            style={{
-              backgroundColor: theme.colors.primary,
-              width: 100,
-              height: 100,
-              borderRadius: 5,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
+        {userApps.length > 0 &&
+          userApps.map(app => (
+            <TouchableOpacity
+              activeOpacity={0.95}
+              onPress={() => navigation.navigate('Forms', {})}
+              key={app.appId}>
+              <Surface
+                elevation={2}
+                style={{
+                  backgroundColor: theme.colors.primary,
+                  width: 100,
+                  height: 100,
+                  borderRadius: 5,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Text
+                  variant="bodyMedium"
+                  style={{textAlign: 'center', color: theme.colors.onPrimary}}>
+                  {app.appName}
+                </Text>
+              </Surface>
+            </TouchableOpacity>
+          ))}
+        {userApps.length === 0 && (
+          <View style={{flex: 1, marginTop: '70%', alignItems: 'center'}}>
+            <View
+              style={{
+                width: 150,
+                height: 150,
+                borderRadius: 6,
+                backgroundColor: '#eaeaea',
+                backgroundColor: theme.colors.surfaceVariant,
+                justifyContent: 'center',
+            alignItems: 'center',
+              }}>
+              <Icon source="apps" color={theme.colors.secondary} size={100} />
+            </View>
             <Text
-              variant="bodyMedium"
-              style={{textAlign: 'center', color: theme.colors.onPrimary}}>
-              Data Logger
+              variant="titleMedium"
+              style={{marginTop: 5, color: theme.colors.secondary}}>
+              No Apps
             </Text>
-          </Surface>
-        </TouchableOpacity>
+          </View>
+        )}
       </View>
     </View>
   );

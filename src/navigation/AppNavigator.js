@@ -14,8 +14,9 @@ import SettingsScreen from '../screens/SettingsScreen';
 import SubmittedReportsScreen from '../screens/SubmittedReportsScreen';
 import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-// import {} from '../sqlite/getDataFromTables'
-import {createOrgTable, createUsersTable} from '../sqlite/createTables';
+import {getDataFromOrgTableByOrgId} from '../sqlite/getDataFromTables'
+import {createAppsTable, createOrgTable, createUsersTable} from '../sqlite/createTables';
+import { deleteTable } from '../sqlite/deleteTables';
 
 const ProtectedScreens = () => {
   return (
@@ -70,6 +71,7 @@ const AppNavigator = () => {
     try {
       const orgId = await AsyncStorage.getItem('orgId');
       if (orgId) {
+        console.log("getttt===>",orgId)
         const orgData = await getDataFromOrgTableByOrgId(orgId);
         dispatch(initOrg(orgData));
       }
@@ -80,21 +82,23 @@ const AppNavigator = () => {
   useEffect(() => {
     // create all sqlite tables
     createOrgTable();
+    // deleteTable('orgs')
     createUsersTable();
+    createAppsTable();
 
     getOrgDataFromDb();
   }, []);
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        {isAuthenticated && (
+        {!isAuthenticated && (
           <Stack.Screen
             name="Login"
             component={LoginScreen}
             options={{headerShown: false}}
           />
         )}
-        {!isAuthenticated && (
+        {isAuthenticated && (
           <Stack.Screen
             name="Protected"
             component={ProtectedScreens}

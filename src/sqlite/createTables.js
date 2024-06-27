@@ -26,7 +26,7 @@ export const createOrgTable = async () => {
     try {
       const db = await openDatabase();
       await db.executeSql(
-        'CREATE TABLE IF NOT EXISTS orgs (orgId TEXT PRIMARY KEY NOT NULL, orgName TEXT NOT NULL, orgImage TEXT ,OrgUrl TEXT NOT NULL)',
+        'CREATE TABLE IF NOT EXISTS orgs (orgId TEXT PRIMARY KEY NOT NULL, orgName TEXT NOT NULL, orgImage TEXT ,orgUrl TEXT NOT NULL)',
         [],
       );
       console.log('ORG table created successfully');
@@ -45,5 +45,31 @@ export const createOrgTable = async () => {
       console.log('USERS table created successfully');
     } catch (error) {
       console.log("Error in creating USERS table",error)
+    }
+  };
+
+  export const createAppsTable = async () => {
+    try {
+      const db = await openDatabase();
+      await db.executeSql(
+        'CREATE TABLE IF NOT EXISTS apps (appId TEXT PRIMARY KEY NOT NULL, appName TEXT, appDescription TEXT )',
+        [],
+      );
+      console.log('APPS table created successfully');
+    } catch (error) {
+      console.log("Error in creating APPS table",error)
+    }
+  };
+
+  export const createUserOrgXrefTable = async () => {
+    try {
+      const db = await openDatabase();
+      await db.executeSql(
+        'CREATE TABLE IF NOT EXISTS userOrgXref (userId TEXT , orgId TEXT, appId TEXT )',
+        [],
+      );
+      console.log('userOrgXref table created successfully');
+    } catch (error) {
+      console.log("Error in creating userOrgXref table",error)
     }
   };

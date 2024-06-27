@@ -42,3 +42,66 @@ export const updateDataInThemeTable = async (themeId, theme) => {
     console.log('Error in updating theme in table', error);
   }
 };
+
+export const insertDataInOrgTable = async (
+  orgId,
+  orgName,
+  orgImage,
+  orgUrl,
+) => {
+  try {
+    const db = await openDatabase();
+    const result = await db.executeSql(
+      'INSERT OR IGNORE INTO orgs (orgId, orgName, orgImage, orgUrl) VALUES (?, ?, ?, ?);',
+      [orgId, orgName, orgImage, orgUrl],
+    );
+    if (result && result[0].rowsAffected) {
+      console.log(`Data is inserted into orgs Table successfully`);
+    } else {
+      console.log('Data is not inserted into orgs Table');
+    }
+  } catch (error) {
+    console.log('Error in inserting data in orgs table', error);
+  }
+};
+
+export const insertDataInUsersTable = async (
+  userId,
+  firstName,
+  lastName,
+  email,
+  password,
+  mobile,
+) => {
+  try {
+    const db = await openDatabase();
+    const result = await db.executeSql(
+      'INSERT OR IGNORE INTO users (userId, firstName, lastName, email, password, mobile) VALUES (?, ?, ?, ?, ?, ?);',
+      [userId, firstName, lastName, email, password, mobile],
+    );
+    console.log(result);
+    if (result && result[0].rowsAffected) {
+      console.log(`Data is inserted into users Table successfully`);
+    } else {
+      console.log('Data is not inserted into users Table');
+    }
+  } catch (error) {
+    console.log('Error in inserting data in users table', error);
+  }
+};
+
+export const insertDataInAppsTable = async apps => {
+  try {
+    const db = await openDatabase();
+    const appPromise = async app => {
+      return db.executeSql(
+        'INSERT OR IGNORE INTO apps (appId, appName, appDescription) VALUES (?, ?, ?);',
+        [app.appId, app.appName, app.appDescription],
+      );
+    };
+    const responses = await Promise.all(apps.map(async (app)=> await appPromise(app)))
+    console.log("848686",responses)
+  } catch (error) {
+    console.log('Error in inserting data in users table', error);
+  }
+};

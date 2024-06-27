@@ -13,7 +13,7 @@ const userSlice = createSlice({
     },
     reducers: {
         initUser : (state,action)=> {
-            state.org = action.payload
+            state.user = action.payload
         }
     }
 });

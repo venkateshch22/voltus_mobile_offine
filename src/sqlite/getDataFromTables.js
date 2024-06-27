@@ -28,3 +28,23 @@ export const getDataFromThemeTableById = async (themeId) => {
     console.log('Error in selecting theme from table', error);
   }
 };
+
+export const getDataFromOrgTableByOrgId = async (orgId) => {
+  try {
+    const db = await openDatabase();
+    const result = await db.executeSql(
+        'SELECT * FROM orgs WHERE orgId = ?;',
+        [orgId]
+      );
+      console.log("11212",result)
+    if (result && result[0].rows.length > 0) {
+        console.log(`Org for orgId ${orgId}:`, result[0].rows.item(0));
+      return result[0].rows.item(0);
+    } else {
+        console.log(`No org found with orgId ${orgId}`);
+      return null;
+    }
+  } catch (error) {
+    console.log('Error in selecting org from table', error);
+  }
+};
