@@ -6,6 +6,7 @@ import {Provider} from 'react-redux';
 import store from './src/store/store';
 import {createThemeTable} from './src/sqlite/createTables';
 import {insertDataInThemeTable} from './src/sqlite/insertOrUpdateDataInTables';
+import {AuthProvider} from './src/context/AuthContext';
 
 export default function Main() {
   useEffect(() => {
@@ -14,7 +15,9 @@ export default function Main() {
   }, []);
   return (
     <Provider store={store}>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </Provider>
   );
 }

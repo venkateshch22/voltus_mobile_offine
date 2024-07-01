@@ -15,10 +15,10 @@ import {
 import {useDispatch, useSelector} from 'react-redux';
 import NetInfo from '@react-native-community/netinfo';
 
-const SubmittedReportsScreen = ({navigation}) => {
+const SubmittedReportsScreen = ({navigation, route}) => {
+  const {formId} = route.params;
   const theme = useTheme();
   const [netorkStatus, setNetworkStatus] = useState();
-
   const checkNetworkStatus = () => {
     NetInfo.fetch().then(state => {
       setNetworkStatus(state.isConnected);
@@ -54,17 +54,17 @@ const SubmittedReportsScreen = ({navigation}) => {
           }}>
           <Icon
             source="circle"
-            size={10}
+            size={12}
             color={netorkStatus ? '#008000' : '#bf0603'}
           />
-          <Text variant="labelSmall" style={{paddingLeft: 3}}>
+          <Text variant="labelSmall" style={{paddingLeft: 3, paddingRight: 10}}>
             {netorkStatus ? 'Online' : 'Offlien'}
           </Text>
         </View>
       </View>
       <View
         style={{
-        //   flex: 1,
+          //   flex: 1,
           flexDirection: 'row',
           // gap: 30,
           justifyContent: 'space-between',
@@ -99,7 +99,7 @@ const SubmittedReportsScreen = ({navigation}) => {
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.95}
-          onPress={() => navigation.navigate('AddReport')}>
+          onPress={() => navigation.navigate('AddReport', {formId: formId})}>
           <Surface
             elevation={2}
             style={{
@@ -124,7 +124,7 @@ const SubmittedReportsScreen = ({navigation}) => {
           </Surface>
         </TouchableOpacity>
       </View>
-      <View style={{flex: 1, alignItems: 'center',marginTop:'50%'}}>
+      <View style={{flex: 1, alignItems: 'center', marginTop: '50%'}}>
         <View
           style={{
             width: 150,

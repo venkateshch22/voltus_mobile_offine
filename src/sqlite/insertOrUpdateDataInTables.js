@@ -16,7 +16,7 @@ export const insertDataInThemeTable = async (themeId, theme) => {
       'INSERT OR IGNORE INTO theme (themeId, theme) VALUES (?, ?);',
       [themeId, theme],
     );
-    if (result && result.rowsAffected) {
+    if (result && result[0].rowsAffected) {
       console.log(`Data is inserted into theme Table successfully`);
     } else {
       console.log('Data is not inserted into theme Table');
@@ -33,7 +33,7 @@ export const updateDataInThemeTable = async (themeId, theme) => {
       'UPDATE theme SET theme = ? WHERE themeId = ?;',
       [theme, themeId],
     );
-    if (result && result.rowsAffected) {
+    if (result && result[0].rowsAffected) {
       console.log(`Theme with themeId ${themeId} updated successfully`);
     } else {
       console.log(`No theme found with themeId ${themeId} to update`);
@@ -100,7 +100,40 @@ export const insertDataInAppsTable = async apps => {
       );
     };
     const responses = await Promise.all(apps.map(async (app)=> await appPromise(app)))
-    console.log("848686",responses)
+    console.log("apps",responses)
+  } catch (error) {
+    console.log('Error in inserting data in users table', error);
+  }
+};
+
+export const insertDataInUserOrgXrefTable = async apps => {
+  try {
+    const db = await openDatabase();
+    const appPromise = async app => {
+      return db.executeSql(
+        'INSERT OR IGNORE INTO userOrgXref (userId, orgId, appId) VALUES (?, ?, ?);',
+        [app.userId, app.orgId, app.appId],
+      );
+    };
+    const responses = await Promise.all(apps.map(async (app)=> await appPromise(app)))
+    console.log("userOrgXref insertion data",responses)
+  } catch (error) {
+    console.log('Error in inserting data in users table', error);
+  }
+};
+
+export const insertDataInFormsTable = async forms => {
+  console.log("454545",forms)
+  try {
+    const db = await openDatabase();
+    const formPromise = async form => {
+      return db.executeSql(
+        'INSERT OR IGNORE INTO forms (formId, appId, formName, formJson, themeJson) VALUES (?, ?, ?, ?, ?);',
+        [form.formId, form.appId, form.formName, JSON.stringify(form.formJson),  JSON.stringify(form.themeJson)],
+      );
+    };
+    const responses = await Promise.all(forms.map(async (form)=> await formPromise(form)))
+    console.log("forms",responses)
   } catch (error) {
     console.log('Error in inserting data in users table', error);
   }

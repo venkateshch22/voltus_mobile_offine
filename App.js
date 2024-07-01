@@ -1,14 +1,16 @@
-import {StyleSheet, Text, View,useColorScheme} from 'react-native';
+import {StyleSheet, Text, View, useColorScheme} from 'react-native';
 import {useState, useEffect} from 'react';
 import AppNavigator from './src/navigation/AppNavigator';
-import {AuthProvider} from './src/context/AuthContext';
 import {useDispatch, useSelector} from 'react-redux';
 import {PaperProvider} from 'react-native-paper';
 import {darkTheme, lightTheme} from './src/constants/theme';
 import {setTheme} from './src/store/slices/themeSlice';
 import {getDataFromThemeTableById} from './src/sqlite/getDataFromTables';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useAuth} from './src/context/AuthContext'
 
 const App = () => {
+  const {login, logout} = useAuth();
   const themeSelected = useSelector(state => state.theme.theme);
   const dispatch = useDispatch();
   const setThemeToRedux = async () => {
@@ -19,8 +21,17 @@ const App = () => {
       console.log(error);
     }
   };
+  const checkUserLoginStatus = async () => {
+    const userId = await AsyncStorage.getItem('userId');
+    if (userId) {
+      login();
+    } else {
+      logout();
+    }
+  };
   useEffect(() => {
     setThemeToRedux();
+    checkUserLoginStatus();
   }, []);
   const colorScheme = useColorScheme();
   let theme;
@@ -36,9 +47,7 @@ const App = () => {
   }
   return (
     <PaperProvider theme={theme}>
-      <AuthProvider>
-        <AppNavigator />
-      </AuthProvider>
+      <AppNavigator />
     </PaperProvider>
   );
 };

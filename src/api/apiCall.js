@@ -1,10 +1,10 @@
 import axios from 'axios';
 import {constants} from '../constants/constants';
+import {VLS_API_URL} from "@env";
 
 export const getOrgDetailsApi = async (org, domain) => {
-  const url = constants.VLS_API_URL;
   try {
-    const response = await axios.post(`${url}/checkorgexistsapi`, {
+    const response = await axios.post(`${VLS_API_URL}/checkorgexistsapi`, {
       platform_domain: domain,
       org_code: org,
     });
@@ -16,9 +16,8 @@ export const getOrgDetailsApi = async (org, domain) => {
 };
 
 export const loginApi = async (orgId, email, password) => {
-  const url = constants.VLS_API_URL;
   try {
-    const response = await axios.post(`${url}/loginApi`, {
+    const response = await axios.post(`${VLS_API_URL}/loginApi`, {
       orgId: orgId,
       email: email,
       password: password,
@@ -31,9 +30,8 @@ export const loginApi = async (orgId, email, password) => {
 };
 
 export const getOfflineAppsApi = async (orgId, userId) => {
-  const url = constants.VLS_API_URL;
   try {
-    const response = await axios.post(`${url}/getOfflineApps`, {
+    const response = await axios.post(`${VLS_API_URL}/getOfflineApps`, {
       orgId: orgId,
       userId: userId,
     });
@@ -44,17 +42,15 @@ export const getOfflineAppsApi = async (orgId, userId) => {
   }
 };
 
-export const getOfflineAppFormsApi = async (orgId, appId, userId) => {
-  const url = constants.VLS_API_URL;
-  try {
-    const response = await axios.post(`${url}/offlineAppFormData`, {
-      orgId: orgId,
-      appId: appId,
-      userId: userId,
-    });
-    return response.data;
-  } catch (error) {
-    console.log(error.message);
-    return error;
-  }
+export const getOfflineAppFormsApi = async (apps) => {
+  const formPromises = async(app) => { 
+    return axios.post(`${VLS_API_URL}/offlineAppFormData`, {
+        orgId: app.orgId,
+        appId: app.appId,
+        userId: app.userId,
+      })
+   }
+   const responses = await Promise.all(apps.map(async(app)=>await formPromises(app)));
+   return responses[0].data
+
 };

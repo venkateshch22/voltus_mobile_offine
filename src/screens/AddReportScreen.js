@@ -1,13 +1,15 @@
-import {StyleSheet, View, Image} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import React from 'react';
-import {IconButton, Text, useTheme, TextInput} from 'react-native-paper';
+import {IconButton, Text, useTheme} from 'react-native-paper';
 import {useSelector} from 'react-redux';
 import WebView from 'react-native-webview';
 
-const AddReportScreen = ({navigation}) => {
+const AddReportScreen = ({navigation, route}) => {
+  const {formId} = route.params;
   const theme = useTheme();
-  const userData = useSelector(state => state.user.user);
-  console.log(userData);
+  const forms = useSelector(state=>state.forms.forms);
+  const formSelected = forms.filter(form=>form.formId === formId);
+
   return (
     <View style={{flex: 1, backgroundColor: theme.colors.background}}>
       <View
@@ -23,23 +25,24 @@ const AddReportScreen = ({navigation}) => {
         />
         <Text>Add Report</Text>
       </View>
-      {/* <View style={{flex: 1}}>
-       
 
-      </View> */}
       <WebView
-        source={{uri: 'file://android_asset/web/index.html'}}
+        source={{uri: 'file:///android_asset/web/index.html'}}
         javaScriptEnabled={true}
         originWhitelist={['*']}
         allowFileAccess={true}
         allowUniversalAccessFromFileURLs={true}
         onError={syntheticEvent => {
           const {nativeEvent} = syntheticEvent;
-          console.log('native event', nativeEvent);
+          console.warn('WebView error: ', nativeEvent);
         }}
-        injectedJavaScriptObject={{customValue:{
-          
-        }}}
+        onMessage={event => {
+          console.log('first');
+        }}
+        injectedJavaScriptObject={{
+          form: formSelected[0].formJson,
+          theme: JSON.parse(formSelected[0].themeJson),
+        }}
       />
     </View>
   );
@@ -54,13 +57,4 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  // imageContainer: {
-  //   alignItems: 'center',
-  //   marginTop: 150,
-  //   marginBottom: 10,
-  // },
-  // image: {
-  //   width: 100,
-  //   height: 100,
-  // },
 });

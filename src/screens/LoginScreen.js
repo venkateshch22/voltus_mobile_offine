@@ -20,13 +20,20 @@ import {
   Snackbar,
 } from 'react-native-paper';
 import {useDispatch, useSelector} from 'react-redux';
-import {getOrgDetailsApi, loginApi, getOfflineAppsApi} from '../api/apiCall';
+import {
+  getOrgDetailsApi,
+  loginApi,
+  getOfflineAppsApi,
+  getOfflineAppFormsApi,
+} from '../api/apiCall';
 import {initOrg} from '../store/slices/orgSlice';
 import {initUser} from '../store/slices/userSlice';
 import {initApps} from '../store/slices/appsSlice';
 import {
   insertDataInAppsTable,
+  insertDataInFormsTable,
   insertDataInOrgTable,
+  insertDataInUserOrgXrefTable,
   insertDataInUsersTable,
 } from '../sqlite/insertOrUpdateDataInTables';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -36,18 +43,18 @@ import {
   getUserDetailsFromUsersTable,
 } from '../sqlite/getDataFromTables';
 import toastMessage from '../commonFunctions/toastMessage';
+import {initForms} from '../store/slices/formsSlice';
 
 const LoginScreen = ({navigation}) => {
   const org = useSelector(state => state.org.org);
-  const redApps = useSelector(state=> state.apps.apps);
-  console.log(redApps)
-  console.log('loginscreen===>', org);
+  const redApps = useSelector(state => state.apps.apps);
+  
   const {login, isAuthenticated} = useAuth();
   const [visible, setVisible] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [orgUrl, setOrgUrl] = useState(org.orgUrl);
+  const [orgUrl, setOrgUrl] = useState(org?.orgUrl ? org?.orgUrl : 'https://');
   const [isValidEmail, setIsValidEmail] = useState(true);
   const [isPasswordValid, setIsPasswordValid] = useState(true);
   const [orgSettingsErrorMessage, setOrgSettingsErrorMessage] = useState('');
@@ -61,12 +68,12 @@ const LoginScreen = ({navigation}) => {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   useEffect(() => {
-    setOrgUrl(org.orgUrl);
+    setOrgUrl(org?.orgUrl);
   }, [org]);
 
-  useEffect(()=>{
-    console.log(redApps)
-  },[redApps])
+  useEffect(() => {
+    console.log(redApps);
+  }, [redApps]);
 
   const checkNetworkStatus = () => {
     NetInfo.fetch().then(state => {
@@ -86,7 +93,7 @@ const LoginScreen = ({navigation}) => {
   };
 
   const hideDialog = () => {
-    setOrgUrl(org.orgUrl);
+    setOrgUrl(org?.orgUrl);
     setOrgSettingsErrorMessage('');
     setVisible(false);
   };
@@ -133,6 +140,10 @@ const LoginScreen = ({navigation}) => {
   };
 
   const loginHandler = async () => {
+    if(!org.orgId){
+      setLoginErrorMessage('Please set an ORG in the settings!')
+      return;
+    }
     if (password.length === 0 || email.length === 0) {
       if (password.length === 0) {
         setIsPasswordValid(false);
@@ -145,11 +156,12 @@ const LoginScreen = ({navigation}) => {
       if (networkStatus) {
         // check with API
         try {
+          setIsLoginLoading(true)
           const response = await loginApi(org.orgId, email, password);
           console.log('user login API', response);
           if (response.status === 200) {
             const userDetails = JSON.parse(JSON.stringify(response.result));
-            console.log("userDetails")
+            console.log('userDetails');
             insertDataInUsersTable(
               userDetails.userId,
               userDetails.firstName,
@@ -174,25 +186,62 @@ const LoginScreen = ({navigation}) => {
             );
             console.log('offline apps api response', appApiResponse);
             if (appApiResponse.status === 200) {
-              const apps = appApiResponse.result
-                .map(app => ({appId: app.appId, appName: app.appName, appDescription: app.appDescription}))
-                .filter(app => app.appId !== null);
-              // store in apps table
-              insertDataInAppsTable(apps);
-              console.log(apps)
-              // store in redux
-              dispatch(initApps(apps))
-              login()
-              // store in xref
+              if (appApiResponse.result.length > 0) {
+                const apps = appApiResponse.result
+                  .map(app => ({
+                    appId: app.appId,
+                    appName: app.appName,
+                    appDescription: app.appDescription,
+                    orgId: org.orgId,
+                    userId: userDetails.userId,
+                  }))
+                  .filter(app => app.appId !== null);
+                // store in apps table
+                insertDataInAppsTable(apps);
+                console.log(apps);
+                // store in redux
+                dispatch(initApps(apps));
+                // store in xref
+                insertDataInUserOrgXrefTable(apps);
+                const formsApiResponse = await getOfflineAppFormsApi(apps);
+                console.log('forms', formsApiResponse);
+                if (formsApiResponse.status === 200) {
+                  if (formsApiResponse.result.length > 0) {
+                    const forms = formsApiResponse.result
+                      .map(form => ({
+                        appId: form.appId,
+                        formId: form.formId,
+                        formName: form.formName,
+                        formJson: form.jsonData,
+                        themeJson: form.themeJson
+                      }))
+                      .filter(form => form.formId && form.appId);
+                    insertDataInFormsTable(forms);
+                    dispatch(initForms(forms));
+                  }
+                  // store in forms table
+                  // store in redux
+                } else {
+                }
+                setIsLoginLoading(false)
+                toastMessage('Welcome..!!');
+                login();
+                
+              } else {
+                // proceed to home page and show no apps screen to the user
+                toastMessage('Welcome..!!');
+                // login();
+              }
             } else if (appApiResponse.status === 400) {
+              // setLoginErrorMessage(response.statusMessage);
             }
-            toastMessage('Welcome..!!');
           } else if (
             response.status === 400 &&
             response.statusMessage === 'Invalid email or password'
           ) {
             setLoginErrorMessage(response.statusMessage);
           }
+          setIsLoginLoading(false)
         } catch (error) {
           console.log('less', error);
         }
@@ -233,7 +282,12 @@ const LoginScreen = ({navigation}) => {
                   orgUrl,
                 );
                 await AsyncStorage.setItem('orgId', org.orgId);
+                setLoginErrorMessage('')
                 setVisible(false);
+              }else if(response.status_code === 404){
+                setOrgSettingsErrorMessage(response.status_message);
+              }else{
+                setOrgSettingsErrorMessage('Internal server Error')
               }
             } else {
               // offline
@@ -332,12 +386,12 @@ const LoginScreen = ({navigation}) => {
         </View>
         <View style={{marginHorizontal: 'auto', width: '80%'}}>
           <View style={styles.imageContainer}>
-            {Boolean(org.orgImage) ? (
+            {Boolean(org?.orgImage) ? (
               <Image
                 style={styles.image}
                 source={{
-                  uri: org.orgImage
-                    ? org.orgImage
+                  uri: org?.orgImage
+                    ? org?.orgImage
                     : 'https://placehold.co/100x100',
                 }}
               />
@@ -352,7 +406,7 @@ const LoginScreen = ({navigation}) => {
                 <Icon source="domain" size={50} />
               </View>
             )}
-            {org.orgName && (
+            {org?.orgName && (
               <Text variant="titleMedium" style={{marginTop: 5}}>
                 {org.orgName}
               </Text>

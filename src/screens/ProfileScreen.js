@@ -1,12 +1,23 @@
 import {StyleSheet, View, Image} from 'react-native';
-import React from 'react';
+import React, {useEffect,useState} from 'react';
 import {IconButton, Text, useTheme, TextInput} from 'react-native-paper';
-import { useSelector } from 'react-redux';
+import {useSelector} from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {getUserDetailsByUserId} from '../sqlite/getDataFromTables';
 
 const ProfileScreen = ({navigation}) => {
   const theme = useTheme();
-  const userData = useSelector(state=>state.user.user);
-  console.log(userData)
+  const [user, setUser] = useState({});
+  const getUserDetails = async () => {
+    const userId = await AsyncStorage.getItem('userId');
+    if (userId) {
+      const userDetails = await getUserDetailsByUserId(userId);
+      setUser(userDetails)
+    }
+  };
+  useEffect(() => {
+    getUserDetails();
+  }, []);
   return (
     <View style={{flex: 1, backgroundColor: theme.colors.background}}>
       <View
@@ -23,43 +34,40 @@ const ProfileScreen = ({navigation}) => {
         <Text>Profile</Text>
       </View>
       <View style={{flex: 1}}>
-        <View style={{width:'90%',marginHorizontal:'auto'}}>
+        <View style={{width: '90%', marginHorizontal: 'auto'}}>
           <TextInput
-          label='First Name'
-          value={userData.firstName}
-          editable={false}
-          style={{marginVertical:10,paddingHorizontal:0}}
-          underlineColor='#000'
-          contentStyle={{backgroundColor:theme.colors.background}}
+            label="First Name"
+            value={user.firstName}
+            editable={false}
+            style={{marginVertical: 10, paddingHorizontal: 0}}
+            underlineColor="#000"
+            contentStyle={{backgroundColor: theme.colors.background}}
           />
           <TextInput
-          label='Last Name'
-          value={userData.lastName}
-          editable={false}
-          style={{marginVertical:10,paddingHorizontal:0}}
-          underlineColor='#000'
-          contentStyle={{backgroundColor:theme.colors.background}}
+            label="Last Name"
+            value={user.lastName}
+            editable={false}
+            style={{marginVertical: 10, paddingHorizontal: 0}}
+            underlineColor="#000"
+            contentStyle={{backgroundColor: theme.colors.background}}
           />
           <TextInput
-          label='Mobile Number'
-          value={userData.mobile}
-          editable={false}
-          style={{marginVertical:10,paddingHorizontal:0}}
-          underlineColor='#000'
-          contentStyle={{backgroundColor:theme.colors.background}}
+            label="Mobile Number"
+            value={user.mobile}
+            editable={false}
+            style={{marginVertical: 10, paddingHorizontal: 0}}
+            underlineColor="#000"
+            contentStyle={{backgroundColor: theme.colors.background}}
           />
           <TextInput
-          label='Email'
-          value={userData.email}
-          editable={false}
-          style={{marginVertical:10,paddingHorizontal:0}}
-          underlineColor='#000'
-          contentStyle={{backgroundColor:theme.colors.background}}
+            label="Email"
+            value={user.email}
+            editable={false}
+            style={{marginVertical: 10, paddingHorizontal: 0}}
+            underlineColor="#000"
+            contentStyle={{backgroundColor: theme.colors.background}}
           />
-          
-
         </View>
-
       </View>
     </View>
   );
@@ -84,4 +92,3 @@ const styles = StyleSheet.create({
   //   height: 100,
   // },
 });
-

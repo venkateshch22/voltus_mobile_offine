@@ -18,14 +18,39 @@ import {
   Icon,
 } from 'react-native-paper';
 import {useDispatch, useSelector} from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {deleteTable} from '../sqlite/deleteTables';
+import {
+  getDataFromOrgTableByOrgId,
+  getUserAppsFromTables,
+} from '../sqlite/getDataFromTables';
+import {initOrg} from '../store/slices/orgSlice';
 
 const HomeScreen = ({navigation}) => {
   const {logout} = useAuth();
   const theme = useTheme();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const orgData = useSelector(state => state.org.org);
-  const userApps = useSelector(state => state.apps.apps);
-  console.log('user apps===>', userApps);
+  const [orgData, setOrgData] = useState({});
+  const [apps, setApps] = useState([]);
+  const dispatch = useDispatch();
+
+  const getDataFromLocalDb = async () => {
+    const orgId = await AsyncStorage.getItem('orgId');
+    const userId = await AsyncStorage.getItem('userId');
+    if (orgId && userId) {
+      const orgData = await getDataFromOrgTableByOrgId(orgId);
+      setOrgData(orgData);
+      const userApps = await getUserAppsFromTables(userId, orgId);
+      console.log(userApps);
+      setApps(userApps);
+    } else {
+      logout();
+    }
+  };
+
+  useEffect(() => {
+    getDataFromLocalDb();
+  }, []);
 
   const openMenu = () => setShowProfileMenu(true);
   const closeMenu = () => setShowProfileMenu(false);
@@ -41,8 +66,18 @@ const HomeScreen = ({navigation}) => {
     closeMenu();
     navigation.navigate('AppInfo');
   };
-  const logoutHandler = () => {
+  const logoutHandler = async () => {
     logout();
+    await AsyncStorage.removeItem('userId');
+    await AsyncStorage.removeItem('orgId');
+    dispatch(
+      initOrg({
+        orgUrl: 'https://',
+        orgId: '',
+        orgName: '',
+        orgImage: '',
+      }),
+    );
   };
   return (
     <View style={{flex: 1, backgroundColor: theme.colors.background}}>
@@ -55,13 +90,13 @@ const HomeScreen = ({navigation}) => {
         <Image
           style={styles.image}
           source={{
-            uri: orgData.orgImage
-              ? orgData.orgImage
+            uri: orgData?.orgImage
+              ? orgData?.orgImage
               : 'https://placehold.co/100x100',
           }}
         />
         <View style={{paddingLeft: 8}}>
-          <Text>{orgData.orgName ? orgData.orgName : 'Home'}</Text>
+          <Text>{orgData?.orgName ? orgData?.orgName : 'Home'}</Text>
         </View>
         <View style={{flex: 1, alignItems: 'flex-end'}}>
           <Menu
@@ -117,11 +152,11 @@ const HomeScreen = ({navigation}) => {
           margin: 25,
           flexWrap: 'wrap',
         }}>
-        {userApps.length > 0 &&
-          userApps.map(app => (
+        {apps.length > 0 &&
+          apps.map(app => (
             <TouchableOpacity
               activeOpacity={0.95}
-              onPress={() => navigation.navigate('Forms', {})}
+              onPress={() => navigation.navigate('Forms', {appId: app.appId})}
               key={app.appId}>
               <Surface
                 elevation={2}
@@ -141,7 +176,7 @@ const HomeScreen = ({navigation}) => {
               </Surface>
             </TouchableOpacity>
           ))}
-        {userApps.length === 0 && (
+        {apps.length === 0 && (
           <View style={{flex: 1, marginTop: '70%', alignItems: 'center'}}>
             <View
               style={{
@@ -151,7 +186,7 @@ const HomeScreen = ({navigation}) => {
                 backgroundColor: '#eaeaea',
                 backgroundColor: theme.colors.surfaceVariant,
                 justifyContent: 'center',
-            alignItems: 'center',
+                alignItems: 'center',
               }}>
               <Icon source="apps" color={theme.colors.secondary} size={100} />
             </View>

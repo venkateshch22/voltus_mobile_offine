@@ -61,15 +61,49 @@ export const createOrgTable = async () => {
     }
   };
 
+  // export const createUserOrgXrefTable = async () => {
+  //   try {
+  //     const db = await openDatabase();
+  //     await db.executeSql(
+  //       'CREATE TABLE IF NOT EXISTS userOrgXref (userId TEXT , orgId TEXT, appId TEXT )',
+  //       [],
+  //     );
+  //     console.log('userOrgXref table created successfully');
+  //   } catch (error) {
+  //     console.log("Error in creating userOrgXref table",error)
+  //   }
+  // };
   export const createUserOrgXrefTable = async () => {
     try {
       const db = await openDatabase();
       await db.executeSql(
-        'CREATE TABLE IF NOT EXISTS userOrgXref (userId TEXT , orgId TEXT, appId TEXT )',
+        `CREATE TABLE IF NOT EXISTS userOrgXref (
+           userId TEXT,
+           orgId TEXT,
+           appId TEXT,
+           PRIMARY KEY (userId, orgId, appId),
+           FOREIGN KEY (userId) REFERENCES users(userId),
+           FOREIGN KEY (orgId) REFERENCES orgs(orgId),
+           FOREIGN KEY (appId) REFERENCES apps(appId)
+         );`,
         [],
       );
       console.log('userOrgXref table created successfully');
     } catch (error) {
-      console.log("Error in creating userOrgXref table",error)
+      console.error('Error in creating userOrgXref table', error);
+    }
+  };
+
+
+  export const createFormsTable = async () => {
+    try {
+      const db = await openDatabase();
+      await db.executeSql(
+        'CREATE TABLE IF NOT EXISTS forms (formId TEXT PRIMARY KEY NOT NULL, appId TEXT NOT NULL, formName TEXT, formJson TEXT NOT NULL, themeJson TEXT)',
+        [],
+      );
+      console.log('FORMS table created successfully');
+    } catch (error) {
+      console.log("Error in creating FORMS table",error)
     }
   };

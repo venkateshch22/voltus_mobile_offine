@@ -1,46 +1,26 @@
-import {
-  Pressable,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-  View,
-} from 'react-native';
+import {TouchableOpacity, StyleSheet, View} from 'react-native';
 import {useState, useEffect} from 'react';
-import {useAuth} from '../context/AuthContext';
-import {
-  Button,
-  Text,
-  Menu,
-  Card,
-  useTheme,
-  Surface,
-  IconButton,
-} from 'react-native-paper';
+import {Text, useTheme, Surface, IconButton,Icon} from 'react-native-paper';
 import {useDispatch, useSelector} from 'react-redux';
+import {getFormsFromTablesByAppId} from '../sqlite/getDataFromTables';
+import {initForms} from '../store/slices/formsSlice';
 
-const FormsScreen = ({navigation}) => {
-  const {logout} = useAuth();
+const FormsScreen = ({navigation, route}) => {
+  const {appId} = route.params;
+  const dispatch = useDispatch();
+  const [forms, setForms] = useState([]);
   const theme = useTheme();
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const orgData = useSelector(state => state.org.org);
 
-  const openMenu = () => setShowProfileMenu(true);
-  const closeMenu = () => setShowProfileMenu(false);
-  const profileScreenHandler = () => {
-    closeMenu();
-    navigation.navigate('Profile');
+  const getForms = async () => {
+    const appForms = await getFormsFromTablesByAppId(appId);
+    setForms(appForms);
+    dispatch(initForms(appForms));
   };
-  const settingsScreenHandler = () => {
-    closeMenu();
-    navigation.navigate('Settings');
-  };
-  const appInfoScreenHandler = () => {
-    closeMenu();
-    navigation.navigate('AppInfo');
-  };
-  const logoutHandler = () => {
-    logout();
-  };
+
+  useEffect(() => {
+    getForms();
+  }, [appId]);
+
   return (
     <View style={{flex: 1, backgroundColor: theme.colors.background}}>
       <View
@@ -58,34 +38,62 @@ const FormsScreen = ({navigation}) => {
       </View>
       <View
         style={{
-          flex: 1,
+          // flex: 1,
           flexDirection: 'row',
           gap: 30,
           justifyContent: 'flex-start',
           margin: 25,
           flexWrap: 'wrap',
         }}>
-        <TouchableOpacity
-          activeOpacity={0.95}
-          onPress={() => navigation.navigate('SubmittedReports')}>
-          <Surface
-            elevation={2}
+        {forms.length > 0 &&
+          forms.map(form => (
+            <TouchableOpacity
+              activeOpacity={0.95}
+              onPress={() =>
+                navigation.navigate('SubmittedReports', {
+                  formId: form.formId,
+                })
+              }
+              key={form.formId}>
+              <Surface
+                elevation={2}
+                style={{
+                  backgroundColor: theme.colors.primary,
+                  width: 100,
+                  height: 100,
+                  borderRadius: 5,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Text
+                  variant="bodyMedium"
+                  style={{textAlign: 'center', color: theme.colors.onPrimary}}>
+                  {form.formName}
+                </Text>
+              </Surface>
+            </TouchableOpacity>
+          ))}
+      </View>
+      {!forms.length > 0 && (
+        <View style={{flex: 1, alignItems: 'center',marginTop:'50%'}}>
+          <View
             style={{
-              backgroundColor: theme.colors.primary,
-              width: 100,
-              height: 100,
-              borderRadius: 5,
+              width: 150,
+              height: 150,
+              backgroundColor: theme.colors.surfaceVariant,
               justifyContent: 'center',
               alignItems: 'center',
+              borderRadius: 6,
             }}>
-            <Text
-              variant="bodyMedium"
-              style={{textAlign: 'center', color: theme.colors.onPrimary}}>
-              DMR
-            </Text>
-          </Surface>
-        </TouchableOpacity>
-      </View>
+            <Icon source="text" color={theme.colors.secondary} size={100} />
+          </View>
+          <Text
+            variant="titleMedium"
+            style={{marginTop: 5, color: theme.colors.secondary}}>
+            No Forms
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -98,6 +106,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#93b1a7',
     flexDirection: 'row',
     alignItems: 'center',
-    // justifyContent: 'flex-start',
   },
 });
