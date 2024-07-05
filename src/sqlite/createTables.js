@@ -1,7 +1,7 @@
 import SQLite from 'react-native-sqlite-storage';
 import {constants} from '../constants/constants';
 
-SQLite.enablePromise();
+SQLite.enablePromise(true);
 
 const openDatabase = () => {
   return SQLite.openDatabase({
@@ -105,5 +105,18 @@ export const createOrgTable = async () => {
       console.log('FORMS table created successfully');
     } catch (error) {
       console.log("Error in creating FORMS table",error)
+    }
+  };
+
+  export const createResponsesTable = async () => {
+    try {
+      const db = await openDatabase();
+      await db.executeSql(
+        'CREATE TABLE IF NOT EXISTS responses (responseId TEXT PRIMARY KEY NOT NULL, formId TEXT NOT NULL, responseJson TEXT, createdTime TEXT NOT NULL, statusId INT)',
+        [],
+      );
+      console.log('RESPONSES table created successfully');
+    } catch (error) {
+      console.log("Error in creating RESPONSES table",error)
     }
   };

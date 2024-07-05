@@ -19,10 +19,13 @@ import {
   createAppsTable,
   createFormsTable,
   createOrgTable,
+  createResponsesTable,
   createUserOrgXrefTable,
   createUsersTable,
 } from '../sqlite/createTables';
 import {deleteTable} from '../sqlite/deleteTables';
+import ReportView from '../screens/ReportView';
+import { ActivityIndicator, useTheme } from 'react-native-paper';
 
 const ProtectedScreens = () => {
   return (
@@ -65,6 +68,11 @@ const ProtectedScreens = () => {
         component={ProfileScreen}
         options={{headerShown: false}}
       />
+      <Stack.Screen
+        name="ReportView"
+        component={ReportView}
+        options={{headerShown: false}}
+      />
     </Stack.Navigator>
   );
 };
@@ -73,6 +81,8 @@ const Stack = createNativeStackNavigator();
 const AppNavigator = () => {
   const {isAuthenticated, login, logout} = useAuth();
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(true);
+  const theme = useTheme();
 
   const getOrgDataFromDb = async () => {
     try {
@@ -85,6 +95,17 @@ const AppNavigator = () => {
       console.log(error);
     }
   };
+  const checkUserLoginStatus = async () => {
+    setIsLoading(true);
+    const userId = await AsyncStorage.getItem('userId');
+    if (userId) {
+      login();
+    } else {
+      logout();
+    }
+    setIsLoading(false);
+  };
+
   useEffect(() => {
     // create all sqlite tables
     createOrgTable();
@@ -92,9 +113,14 @@ const AppNavigator = () => {
     createAppsTable();
     createFormsTable();
     createUserOrgXrefTable();
+    createResponsesTable();
 
     getOrgDataFromDb();
+    checkUserLoginStatus();
   }, []);
+  if(isLoading){
+    return <View style={{flex:1,justifyContent:'center',alignItems:'center'}}><ActivityIndicator size='large' animating={true} color={theme.colors.primary}/></View>
+  }
   return (
     <NavigationContainer>
       <Stack.Navigator>

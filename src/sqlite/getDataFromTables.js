@@ -3,7 +3,7 @@ import {constants} from '../constants/constants';
 
 SQLite.enablePromise(true);
 
-const openDatabase = () => {
+const openDatabase = async() => {
   return SQLite.openDatabase({
     name: constants.SQLITE_DB_NAME,
   });
@@ -102,7 +102,7 @@ export const getFormsFromTablesByAppId = async appId => {
       return [];
     }
   } catch (error) {
-    console.log('error');
+    console.log('error',error);
   }
 };
 
@@ -112,6 +112,50 @@ export const getUserDetailsByUserId = async userId => {
     const [result] = await db.executeSql(
       'SELECT * FROM users WHERE userId = ?;',
       [userId],
+    );
+    if (result && result.rows.length > 0) {
+      return result.rows.item(0);
+    } else {
+      return {};
+    }
+  } catch (error) {
+    console.log('error');
+  }
+};
+
+export const getResponsesByFormId = async formId => {
+  console.log("getting reponsees",formId)
+
+  try {
+    const db = await openDatabase();
+    console.log(db.openError())
+    console.log(db.openSuccess())
+   
+    const result = await db.executeSql(
+      'SELECT * FROM responses WHERE formId = ?;',
+      [formId],
+    );
+    console.log("1111",result)
+    if (result && result[0].rows.length > 0) {
+      let responses = [];
+      for (let i = 0; i < result[0].rows.length; i++) {
+        responses.push(result[0].rows.item(i));
+      }
+      return responses;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.log('error',error);
+  }
+};
+
+export const getResponseById = async responseId => {
+  try {
+    const db = await openDatabase();
+    const [result] = await db.executeSql(
+      'SELECT * FROM responses WHERE responseId = ?;',
+      [responseId],
     );
     if (result && result.rows.length > 0) {
       return result.rows.item(0);

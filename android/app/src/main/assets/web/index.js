@@ -1,7 +1,5 @@
 window.addEventListener('load', function () {
-
   if (window.ReactNativeWebView.injectedObjectJson()) {
-
     const surveyJson = JSON.parse(
       window.ReactNativeWebView.injectedObjectJson(),
     ).form;
@@ -9,12 +7,19 @@ window.addEventListener('load', function () {
     const themeJson = JSON.parse(
       window.ReactNativeWebView.injectedObjectJson(),
     ).theme;
-    
+
+    const responseJson = JSON.parse(window.ReactNativeWebView.injectedObjectJson())?.response;
+
     const survey = new Survey.Model(surveyJson);
 
+    if(responseJson){
+      survey.data = responseJson;
+      survey.mode = 'display';
+    }
+    
     function alertResults(sender) {
+      // survey.data = sender.data
       const results = JSON.stringify(sender.data);
-      alert(results);
       window.ReactNativeWebView.postMessage(results);
     }
 

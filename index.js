@@ -7,6 +7,7 @@ import store from './src/store/store';
 import {createThemeTable} from './src/sqlite/createTables';
 import {insertDataInThemeTable} from './src/sqlite/insertOrUpdateDataInTables';
 import {AuthProvider} from './src/context/AuthContext';
+import 'react-native-get-random-values'
 
 export default function Main() {
   useEffect(() => {

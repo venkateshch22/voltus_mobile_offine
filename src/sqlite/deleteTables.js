@@ -2,7 +2,7 @@ import SQLite from 'react-native-sqlite-storage';
 import {constants} from '../constants/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-SQLite.enablePromise();
+SQLite.enablePromise(true);
 
 const openDatabase = () => {
   return SQLite.openDatabase({

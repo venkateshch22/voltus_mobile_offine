@@ -20,7 +20,7 @@ const FormsScreen = ({navigation, route}) => {
   useEffect(() => {
     getForms();
   }, [appId]);
-
+  
   return (
     <View style={{flex: 1, backgroundColor: theme.colors.background}}>
       <View
@@ -45,8 +45,8 @@ const FormsScreen = ({navigation, route}) => {
           margin: 25,
           flexWrap: 'wrap',
         }}>
-        {forms.length > 0 &&
-          forms.map(form => (
+        {forms?.length > 0 &&
+          forms?.map(form => (
             <TouchableOpacity
               activeOpacity={0.95}
               onPress={() =>
@@ -74,7 +74,7 @@ const FormsScreen = ({navigation, route}) => {
             </TouchableOpacity>
           ))}
       </View>
-      {!forms.length > 0 && (
+      {!forms?.length > 0 && (
         <View style={{flex: 1, alignItems: 'center',marginTop:'50%'}}>
           <View
             style={{

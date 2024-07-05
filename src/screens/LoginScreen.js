@@ -48,7 +48,7 @@ import {initForms} from '../store/slices/formsSlice';
 const LoginScreen = ({navigation}) => {
   const org = useSelector(state => state.org.org);
   const redApps = useSelector(state => state.apps.apps);
-  
+
   const {login, isAuthenticated} = useAuth();
   const [visible, setVisible] = useState(false);
   const [email, setEmail] = useState('');
@@ -127,6 +127,8 @@ const LoginScreen = ({navigation}) => {
   const passwordFieldOnBlurHandler = () => {
     setShowPassword(false);
     if (password.length > 0) {
+      setIsPasswordValid(true);
+    } else {
       setIsPasswordValid(false);
     }
   };
@@ -437,6 +439,13 @@ const LoginScreen = ({navigation}) => {
               variant="labelSmall"
               style={{color: theme.colors.error, paddingLeft: 5}}>
               *Invalid email
+            </Text>
+          )}
+          {!isValidEmail && email.length === 0 &&(
+            <Text
+              variant="labelSmall"
+              style={{color: theme.colors.error, paddingLeft: 5}}>
+              *required
             </Text>
           )}
           <View style={{justifyContent: 'center'}}>

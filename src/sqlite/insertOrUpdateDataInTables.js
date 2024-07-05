@@ -99,8 +99,10 @@ export const insertDataInAppsTable = async apps => {
         [app.appId, app.appName, app.appDescription],
       );
     };
-    const responses = await Promise.all(apps.map(async (app)=> await appPromise(app)))
-    console.log("apps",responses)
+    const responses = await Promise.all(
+      apps.map(async app => await appPromise(app)),
+    );
+    console.log('apps', responses);
   } catch (error) {
     console.log('Error in inserting data in users table', error);
   }
@@ -115,25 +117,54 @@ export const insertDataInUserOrgXrefTable = async apps => {
         [app.userId, app.orgId, app.appId],
       );
     };
-    const responses = await Promise.all(apps.map(async (app)=> await appPromise(app)))
-    console.log("userOrgXref insertion data",responses)
+    const responses = await Promise.all(
+      apps.map(async app => await appPromise(app)),
+    );
+    console.log('userOrgXref insertion data', responses);
   } catch (error) {
     console.log('Error in inserting data in users table', error);
   }
 };
 
 export const insertDataInFormsTable = async forms => {
-  console.log("454545",forms)
+  console.log('454545', forms);
   try {
     const db = await openDatabase();
     const formPromise = async form => {
       return db.executeSql(
         'INSERT OR IGNORE INTO forms (formId, appId, formName, formJson, themeJson) VALUES (?, ?, ?, ?, ?);',
-        [form.formId, form.appId, form.formName, JSON.stringify(form.formJson),  JSON.stringify(form.themeJson)],
+        [
+          form.formId,
+          form.appId,
+          form.formName,
+          JSON.stringify(form.formJson),
+          JSON.stringify(form.themeJson),
+        ],
       );
     };
-    const responses = await Promise.all(forms.map(async (form)=> await formPromise(form)))
-    console.log("forms",responses)
+    const responses = await Promise.all(
+      forms.map(async form => await formPromise(form)),
+    );
+    console.log('forms', responses);
+  } catch (error) {
+    console.log('Error in inserting data in users table', error);
+  }
+};
+
+export const insertDataInResponsesTable = async (
+  responseId,
+  formId,
+  responseJson,
+  createdTime,
+  statusId,
+) => {
+  try {
+    const db = await openDatabase();
+    const result = await db.executeSql(
+      'INSERT OR IGNORE INTO responses (responseId, formId, responseJson, createdTime, statusId) VALUES (?, ?, ?, ?, ?)',
+      [responseId, formId, responseJson, createdTime, statusId],
+    );
+    console.log('response result ', result);
   } catch (error) {
     console.log('Error in inserting data in users table', error);
   }

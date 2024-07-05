@@ -152,8 +152,8 @@ const HomeScreen = ({navigation}) => {
           margin: 25,
           flexWrap: 'wrap',
         }}>
-        {apps.length > 0 &&
-          apps.map(app => (
+        {apps?.length > 0 &&
+          apps?.map(app => (
             <TouchableOpacity
               activeOpacity={0.95}
               onPress={() => navigation.navigate('Forms', {appId: app.appId})}
@@ -176,7 +176,7 @@ const HomeScreen = ({navigation}) => {
               </Surface>
             </TouchableOpacity>
           ))}
-        {apps.length === 0 && (
+        {apps?.length === 0 && (
           <View style={{flex: 1, marginTop: '70%', alignItems: 'center'}}>
             <View
               style={{

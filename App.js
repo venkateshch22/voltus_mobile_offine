@@ -7,10 +7,9 @@ import {darkTheme, lightTheme} from './src/constants/theme';
 import {setTheme} from './src/store/slices/themeSlice';
 import {getDataFromThemeTableById} from './src/sqlite/getDataFromTables';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useAuth} from './src/context/AuthContext'
+import {useAuth} from './src/context/AuthContext';
 
 const App = () => {
-  const {login, logout} = useAuth();
   const themeSelected = useSelector(state => state.theme.theme);
   const dispatch = useDispatch();
   const setThemeToRedux = async () => {
@@ -21,17 +20,8 @@ const App = () => {
       console.log(error);
     }
   };
-  const checkUserLoginStatus = async () => {
-    const userId = await AsyncStorage.getItem('userId');
-    if (userId) {
-      login();
-    } else {
-      logout();
-    }
-  };
   useEffect(() => {
     setThemeToRedux();
-    checkUserLoginStatus();
   }, []);
   const colorScheme = useColorScheme();
   let theme;
