@@ -71,10 +71,6 @@ const LoginScreen = ({navigation}) => {
     setOrgUrl(org?.orgUrl);
   }, [org]);
 
-  useEffect(() => {
-    console.log(redApps);
-  }, [redApps]);
-
   const checkNetworkStatus = () => {
     NetInfo.fetch().then(state => {
       setNetworkStatus(state.isConnected);
@@ -160,10 +156,8 @@ const LoginScreen = ({navigation}) => {
         try {
           setIsLoginLoading(true)
           const response = await loginApi(org.orgId, email, password);
-          console.log('user login API', response);
           if (response.status === 200) {
             const userDetails = JSON.parse(JSON.stringify(response.result));
-            console.log('userDetails');
             insertDataInUsersTable(
               userDetails.userId,
               userDetails.firstName,
@@ -186,7 +180,6 @@ const LoginScreen = ({navigation}) => {
               org.orgId,
               userDetails.userId,
             );
-            console.log('offline apps api response', appApiResponse);
             if (appApiResponse.status === 200) {
               if (appApiResponse.result.length > 0) {
                 const apps = appApiResponse.result
@@ -200,13 +193,11 @@ const LoginScreen = ({navigation}) => {
                   .filter(app => app.appId !== null);
                 // store in apps table
                 insertDataInAppsTable(apps);
-                console.log(apps);
                 // store in redux
                 dispatch(initApps(apps));
                 // store in xref
                 insertDataInUserOrgXrefTable(apps);
                 const formsApiResponse = await getOfflineAppFormsApi(apps);
-                console.log('forms', formsApiResponse);
                 if (formsApiResponse.status === 200) {
                   if (formsApiResponse.result.length > 0) {
                     const forms = formsApiResponse.result
@@ -245,7 +236,7 @@ const LoginScreen = ({navigation}) => {
           }
           setIsLoginLoading(false)
         } catch (error) {
-          console.log('less', error);
+          console.log('error', error);
         }
       } else {
         // check for local db
@@ -267,9 +258,7 @@ const LoginScreen = ({navigation}) => {
             setIsLoading(true);
             if (networkStatus) {
               const response = await getOrgDetailsApi(subDomain, domain);
-              console.log(response);
               if (response.status_code === 200) {
-                console.log('save the org details');
                 const org = {
                   orgUrl: orgUrl,
                   orgId: response.org_vwid,

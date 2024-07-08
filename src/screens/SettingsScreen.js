@@ -20,7 +20,6 @@ const SettingsScreen = ({navigation}) => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const themeSelected = useSelector(state => state.theme.theme);
-  console.log(themeSelected)
   const [visible, setIsVisible] = useState(false);
   const [checked, setChecked] = useState(themeSelected);
   useEffect(() => {

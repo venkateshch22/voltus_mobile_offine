@@ -54,7 +54,7 @@ const SubmittedReportsScreen = ({navigation, route}) => {
   const deleteReportHandler = async id => {
     await deleteResponseById(id);
     setResponses(prev => prev.filter(response => response.responseId !== id));
-    toastMessage('Report deleted successfully..!!')
+    toastMessage('Report deleted successfully..!!');
   };
 
   const getResponsesHandler = async () => {
@@ -119,7 +119,7 @@ const SubmittedReportsScreen = ({navigation, route}) => {
         }}>
         {/* <TouchableOpacity
           activeOpacity={0.95}
-          onPress={() => console.log('first')}>
+          onPress={() => console.log('sync all')}>
           <Surface
             elevation={2}
             style={{
@@ -193,7 +193,12 @@ const SubmittedReportsScreen = ({navigation, route}) => {
       <ScrollView decelerationRate="fast">
         {responses?.length > 0 &&
           responses.map(response => (
-            <Record response={response} onDeleteRecord={deleteReportHandler} />
+            <Record
+              response={response}
+              onDeleteRecord={deleteReportHandler}
+              navigation={navigation}
+              key={response.responseId}
+            />
           ))}
       </ScrollView>
     </View>

@@ -41,7 +41,6 @@ const HomeScreen = ({navigation}) => {
       const orgData = await getDataFromOrgTableByOrgId(orgId);
       setOrgData(orgData);
       const userApps = await getUserAppsFromTables(userId, orgId);
-      console.log(userApps);
       setApps(userApps);
     } else {
       logout();

@@ -5,7 +5,7 @@ import {Text, IconButton, Icon, useTheme} from 'react-native-paper';
 
 const AnimatedIcon = Animated.createAnimatedComponent(IconButton);
 
-const Record = ({response, onDeleteRecord}) => {
+const Record = ({response, onDeleteRecord,navigation}) => {
   const theme = useTheme();
     const [isSyncing, setIsSyncing] = useState(false);
     const rotation = useRef(new Animated.Value(0)).current;

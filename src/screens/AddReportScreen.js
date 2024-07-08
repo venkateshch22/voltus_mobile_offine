@@ -14,12 +14,9 @@ const AddReportScreen = ({navigation, route}) => {
   const formSelected = forms.filter(form => form.formId === formId);
 
   const formResponseHandler = response => {
-    console.log(response);
-    // console.log(formSelected[0].formId);
     const responseId = uuid();
     const formId = formSelected[0].formId;
     const createdTime = new Date().toISOString();
-    console.log(createdTime);
     insertDataInResponsesTable(
       responseId,
       formId,

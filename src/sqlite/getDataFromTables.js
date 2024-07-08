@@ -16,7 +16,6 @@ export const getDataFromThemeTableById = async themeId => {
       'SELECT * FROM theme WHERE themeId = ?;',
       [themeId],
     );
-    console.log('11212', result[0].rows.item(0));
     if (result && result[0].rows.length > 0) {
       console.log(`Theme for themeId ${themeId}:`, result[0].rows.item(0));
       return result[0].rows.item(0);
@@ -35,7 +34,6 @@ export const getDataFromOrgTableByOrgId = async orgId => {
     const result = await db.executeSql('SELECT * FROM orgs WHERE orgId = ?;', [
       orgId,
     ]);
-    console.log('11212', result);
     if (result && result[0].rows.length > 0) {
       console.log(`Org for orgId ${orgId}:`, result[0].rows.item(0));
       return result[0].rows.item(0);
@@ -124,18 +122,14 @@ export const getUserDetailsByUserId = async userId => {
 };
 
 export const getResponsesByFormId = async formId => {
-  console.log("getting reponsees",formId)
 
   try {
     const db = await openDatabase();
-    console.log(db.openError())
-    console.log(db.openSuccess())
    
     const result = await db.executeSql(
       'SELECT * FROM responses WHERE formId = ?;',
       [formId],
     );
-    console.log("1111",result)
     if (result && result[0].rows.length > 0) {
       let responses = [];
       for (let i = 0; i < result[0].rows.length; i++) {
